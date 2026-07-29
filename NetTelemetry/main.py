@@ -5,10 +5,10 @@ import os
 # Ensure src module can be found
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from src.core.analyzer import PcapAnalyzer
-from src.patterns.trackers import StatsTracker, FlowTracker
-from src.enrichment.service import IpApiEnrichment, CacheProxy
-from src.storage.questdb_repo import QuestDBRepository
+from src.core import PcapAnalyzer
+from src.patterns import StatsTracker, FlowTracker
+from src.enrichment import IpApiEnrichment, CacheProxy
+from src.storage import QuestDBRepository
 
 def main():
     parser = argparse.ArgumentParser(description="NetTelemetry - PCAP Analytics & Storage Engine")

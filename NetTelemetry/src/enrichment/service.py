@@ -2,7 +2,7 @@ import requests
 import json
 import os
 from abc import ABC, abstractmethod
-from src.config.manager import ConfigManager
+from src.config import ConfigManager
 
 class EnrichmentService(ABC):
     @abstractmethod

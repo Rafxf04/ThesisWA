@@ -132,4 +132,7 @@ class FlowTracker(PacketObserver):
             line = f"{src_str} (App: {src_app}) | {dst_str} (App: {dst_app}) | Transport: {proto} | AppLayer: {service}"
             if sni: line += f" | TLS SNI: {sni}"
             if payload: line += f" | Payload: {payload}"
-            print(line)
+            try:
+                print(line)
+            except UnicodeEncodeError:
+                print(line.encode('ascii', errors='backslashreplace').decode('ascii'))

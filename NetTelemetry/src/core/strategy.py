@@ -73,19 +73,19 @@ class PayloadStrategy(ProtocolStrategy):
     def extract_data(self, packet):
         data = {"payload_len": 0, "payload_preview": None}
         try:
+            raw = None
             if hasattr(packet, 'tcp') and hasattr(packet.tcp, 'payload'):
-                # Extract ascii preview of the payload
                 raw = packet.tcp.payload.replace(":", "")
-                data["payload_len"] = len(raw) // 2
-                try:
-                    data["payload_preview"] = bytes.fromhex(raw).decode('utf-8', errors='ignore')[:50]
-                except Exception:
-                    pass
             elif hasattr(packet, 'data') and hasattr(packet.data, 'data'):
                 raw = packet.data.data.replace(":", "")
+                
+            if raw:
                 data["payload_len"] = len(raw) // 2
                 try:
-                    data["payload_preview"] = bytes.fromhex(raw).decode('utf-8', errors='ignore')[:50]
+                    decoded = bytes.fromhex(raw).decode('utf-8', errors='ignore')[:50]
+                    printable = "".join(c if 32 <= ord(c) <= 126 else "." for c in decoded)
+                    if printable.strip("."):
+                        data["payload_preview"] = printable
                 except Exception:
                     pass
         except AttributeError:

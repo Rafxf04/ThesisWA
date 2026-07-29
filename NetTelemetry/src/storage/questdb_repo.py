@@ -1,5 +1,5 @@
 from questdb.ingress import Sender, IngressError, TimestampNanos
-from src.config.manager import ConfigManager
+from src.config import ConfigManager
 import time
 
 class QuestDBRepository:

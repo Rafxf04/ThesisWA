@@ -1,5 +1,10 @@
+import os
 from scapy.all import *
 load_layer("tls")
+
+output_dir = os.path.join(os.path.dirname(__file__), "pcaps")
+os.makedirs(output_dir, exist_ok=True)
+dest = os.path.join(output_dir, "full_sample.pcap")
 
 print("Generating full PCAP with HTTP, TLS (SNI), and DNS...")
 
@@ -23,5 +28,5 @@ pkt_tls = IP(src="192.168.1.50", dst="157.240.22.60")/TCP(sport=12346, dport=443
 pkt_dns = IP(src="192.168.1.50", dst="8.8.8.8")/UDP(sport=12347, dport=53)/DNS(rd=1, qd=DNSQR(qname="www.google.com"))
 
 # Write all to a pcap
-wrpcap("full_sample.pcap", [pkt_http, pkt_tls, pkt_dns])
-print("Done! Saved as full_sample.pcap")
+wrpcap(dest, [pkt_http, pkt_tls, pkt_dns])
+print(f"Done! Saved as {dest}")
