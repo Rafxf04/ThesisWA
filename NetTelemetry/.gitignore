@@ -5,6 +5,8 @@ __pycache__/
 venv/
 .venv/
 ENV/
+pcap_to_analyze/
+run_all.py
 
 # IDE & OS
 .vscode/

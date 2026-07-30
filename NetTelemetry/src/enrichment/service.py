@@ -27,7 +27,7 @@ class IpApiEnrichment(EnrichmentService):
             pass
             
         try:
-            resp = requests.get(f"{self.base_url}{ip_address}?fields=status,message,country,city,org,as")
+            resp = requests.get(f"{self.base_url}{ip_address}?fields=status,message,country,city,org,as", timeout=1.5)
             if resp.status_code == 200:
                 data = resp.json()
                 if data.get("status") == "success":
@@ -36,8 +36,8 @@ class IpApiEnrichment(EnrichmentService):
                         "city": data.get("city", "Unknown"),
                         "org": data.get("org") or data.get("as", "Unknown")
                     }
-        except Exception as e:
-            print(f"Error enriching {ip_address}: {e}")
+        except Exception:
+            pass
         return {}
 
 

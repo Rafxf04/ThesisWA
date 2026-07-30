@@ -33,7 +33,7 @@
 - 🏷️ **Heuristic App & Service Identification**: Maps port numbers, SNI extensions, and User-Agent strings to user applications (e.g., Google Chrome, Firefox, Meta, Netflix, Spotify).
 - 🌍 **GeoIP & ASN Enrichment**: Queries `ip-api.com` to resolve external IP addresses to geographical locations (Country/City) and Organization/ASNs.
 - ⚡ **Local Caching Layer**: High-speed JSON disk caching proxy (`enrichment_cache.json`) to minimize external API calls and rate-limiting.
-- ⏱️ **Time-Series Ingestion**: High-throughput batch streaming into **QuestDB** via the InfluxDB Line Protocol (ILP TCP).
+- ⏱️ **Time-Series Ingestion**: High-throughput batch streaming into **QuestDB** via the InfluxDB Line Protocol (ILP HTTP).
 - 📊 **Grafana Integration**: Pre-configured ports and services for building real-time dashboards.
 
 ---
@@ -67,7 +67,7 @@ graph TD
 | **Observer** | [`NetTelemetry/src/patterns/observer.py`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTelemetry/src/patterns/observer.py), [`NetTelemetry/src/patterns/trackers.py`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTelemetry/src/patterns/trackers.py) | **`Observable` & `PacketObserver`**: Decouples packet parsing from packet consumption (`StatsTracker` and `FlowTracker`). |
 | **Facade** | [`NetTelemetry/src/core/analyzer.py`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTelemetry/src/core/analyzer.py) | **`PcapAnalyzer`**: Provides a unified entry point to hide complex PyShark packet loop handling and strategy execution. |
 | **Proxy / Decorator** | [`NetTelemetry/src/enrichment/service.py`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTelemetry/src/enrichment/service.py) | **`CacheProxy`**: Wraps `IpApiEnrichment` to transparently cache IP geolocation results locally, eliminating duplicate network lookups. |
-| **Repository** | [`NetTelemetry/src/storage/questdb_repo.py`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTelemetry/src/storage/questdb_repo.py) | **`QuestDBRepository`**: Encapsulates persistence logic, batching records and transmitting them over ILP TCP. |
+| **Repository** | [`NetTelemetry/src/storage/questdb_repo.py`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTelemetry/src/storage/questdb_repo.py) | **`QuestDBRepository`**: Encapsulates persistence logic, batching records and transmitting them over ILP HTTP. |
 
 ---
 
@@ -80,6 +80,10 @@ ThesisWA/
     ├── requirements.txt         # Python project dependencies
     ├── main.py                  # CLI application entrypoint
     ├── enrichment_cache.json    # Auto-generated GeoIP lookup cache
+    ├── grafana/                 # Automatic Grafana provisioning configs
+    │   └── provisioning/
+    │       ├── datasources/     # Auto-configures QuestDB data source
+    │       └── dashboards/      # Pre-loaded PCAP Analytics dashboard
     ├── src/
     │   ├── config/
     │   │   └── manager.py       # Thread-safe ConfigManager Singleton
@@ -148,6 +152,8 @@ pip install -r requirements.txt
 *(Note: For test script generation using `Scapy`, you can optionally install `pip install scapy`)*
 
 ### 4. Launch Infrastructure Services (QuestDB & Grafana)
+
+First, make sure the Docker application (e.g., Docker Desktop) is running on your system, then run the following command to start the containers:
 
 ```bash
 docker compose up -d
@@ -234,7 +240,7 @@ Application settings can be configured via environment variables or modified dir
 | Variable | Default Value | Description |
 | :--- | :--- | :--- |
 | `QUESTDB_HOST` | `127.0.0.1` | QuestDB host address |
-| `QUESTDB_PORT` / `QUESTDB_ILP_PORT` | `9009` | QuestDB Influx Line Protocol (ILP) TCP port |
+| `QUESTDB_PORT` / `QUESTDB_ILP_PORT` | `9009` | QuestDB Influx Line Protocol (ILP) TCP port (Not actively used, fallback) |
 | `QUESTDB_HTTP_PORT` | `9000` | QuestDB REST API / Web Console port |
 
 Example running with custom QuestDB host:
@@ -289,13 +295,13 @@ The included [`compose.yml`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTeleme
 
 - **QuestDB**:
   - `9000`: Web Console & REST API
-  - `9009`: InfluxDB Line Protocol (TCP)
+  - `9009`: InfluxDB Line Protocol (TCP - available but unused in current code)
   - `8812`: Postgres Wire Protocol
 - **Grafana**:
   - `3000`: Web UI (Default credentials: `admin` / `admin`)
-  - Includes QuestDB plugin auto-loading configuration.
+  - **Automatic Provisioning**: Pre-configures the QuestDB plugin data source and loads the **NetTelemetry - PCAP Analytics Dashboard** on startup with auto-configured time ranges (`Last 5 years`), eliminating manual UI setup.
 
-To stop infrastructure services:
+To stop infrastructure services (preserving saved data and configurations):
 
 ```bash
 docker compose down
@@ -309,8 +315,8 @@ docker compose down
 - **Cause**: PyShark cannot locate the `tshark` executable.
 - **Fix**: Ensure Wireshark is installed and add `C:\Program Files\Wireshark` (Windows) to system environment variables (`PATH`), then restart your terminal.
 
-### 2. `QuestDB connection offline/unavailable at 127.0.0.1:9009`
-- **Cause**: QuestDB container is not running or port `9009` is blocked.
+### 2. `QuestDB connection offline/unavailable at 127.0.0.1:9000`
+- **Cause**: QuestDB container is not running or port `9000` is blocked.
 - **Fix**: Verify Docker status using `docker ps`. Run `docker compose up -d` to start QuestDB. If you don't want DB storage, pass the `--no-db` flag to `main.py`.
 
 ### 3. `ip-api.com HTTP 429 Too Many Requests`

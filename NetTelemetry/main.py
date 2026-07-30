@@ -13,6 +13,7 @@ from src.storage import QuestDBRepository
 def main():
     parser = argparse.ArgumentParser(description="NetTelemetry - PCAP Analytics & Storage Engine")
     parser.add_argument("-pcap", required=True, help="Path to the PCAP file")
+    parser.add_argument("--table", default="network_traffic", help="QuestDB table name")
     parser.add_argument("--no-db", action="store_true", help="Disable QuestDB export")
     parser.add_argument("--no-enrich", action="store_true", help="Disable IP-API enrichment")
     
@@ -31,8 +32,8 @@ def main():
     # 2. Setup Storage (Repository Pattern)
     db_repo = None
     if not args.no_db:
-        print("Initializing QuestDB connection...")
-        db_repo = QuestDBRepository()
+        print(f"Initializing QuestDB connection (Table: {args.table})...")
+        db_repo = QuestDBRepository(table_name=args.table)
         db_repo.connect()
 
     # 3. Setup Trackers (Observer Pattern)
