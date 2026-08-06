@@ -34,7 +34,12 @@ def main():
     if not args.no_db:
         print(f"Initializing QuestDB connection (Table: {args.table})...")
         db_repo = QuestDBRepository(table_name=args.table)
-        db_repo.connect()
+        success = db_repo.connect()
+        if not success:
+            print("\n[FATAL ERROR] QuestDB is offline or unreachable!")
+            print("Please start your QuestDB Docker container (port 9000).")
+            print("To run the analysis without saving to the database, use the --no-db flag.")
+            sys.exit(1)
 
     # 3. Setup Trackers (Observer Pattern)
     stats_tracker = StatsTracker()

@@ -16,4 +16,11 @@ Thumbs.db
 
 # Dynamic cache & output files
 enrichment_cache.json
+.domain_cache/
 *.pcap
+
+# Temporary dev/debug scripts
+_debug_data.py
+extract.py
+tema5_from_api.json
+

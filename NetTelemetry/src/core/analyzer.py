@@ -1,6 +1,6 @@
 import pyshark
 from src.patterns.observer import Observable
-from src.core.strategy import TLSStrategy, HTTPStrategy, DNSStrategy, PayloadStrategy
+from src.core.strategy import TLSStrategy, HTTPStrategy, DNSStrategy, PayloadStrategy, ICMPStrategy, DHCPStrategy, NTPStrategy, QUICStrategy, SSDPStrategy, ARPStrategy
 
 class PcapAnalyzer(Observable):
     """
@@ -15,6 +15,12 @@ class PcapAnalyzer(Observable):
             TLSStrategy(),
             HTTPStrategy(),
             DNSStrategy(),
+            ICMPStrategy(),
+            DHCPStrategy(),
+            NTPStrategy(),
+            QUICStrategy(),
+            SSDPStrategy(),
+            ARPStrategy(),
             PayloadStrategy()
         ]
 
@@ -77,7 +83,7 @@ class PcapAnalyzer(Observable):
             "dst_ip": None,
             "src_port": None,
             "dst_port": None,
-            "protocol": packet.transport_layer if hasattr(packet, 'transport_layer') else packet.highest_layer
+            "protocol": getattr(packet, 'transport_layer', None) or getattr(packet, 'highest_layer', 'Unknown')
         }
 
         # IP layer

@@ -22,13 +22,42 @@ class TLSStrategy(ProtocolStrategy):
         return 'TLS' in packet
         
     def extract_data(self, packet):
-        data = {"tls_sni": None, "tls_version": None}
+        data = {
+            "tls_sni": None, 
+            "tls_version": None,
+            "tls_ciphersuites": None,
+            "tls_certificate": None
+        }
         try:
             # Extract Server Name Indication (SNI) if present
             if hasattr(packet.tls, 'handshake_extensions_server_name'):
                 data["tls_sni"] = packet.tls.handshake_extensions_server_name
             if hasattr(packet.tls, 'record_version'):
-                data["tls_version"] = packet.tls.record_version
+                ver = str(packet.tls.record_version).lower().strip()
+                version_map = {
+                    "0x0304": "TLS 1.3",
+                    "0x0303": "TLS 1.2",
+                    "0x0302": "TLS 1.1",
+                    "0x0301": "TLS 1.0",
+                    "0x0300": "SSL 3.0",
+                    "0x0002": "SSL 2.0"
+                }
+                data["tls_version"] = version_map.get(ver, ver)
+                
+            # Extract Ciphersuites (Supported by client or chosen by server)
+            if hasattr(packet.tls, 'handshake_ciphersuite'):
+                data["tls_ciphersuites"] = packet.tls.handshake_ciphersuite
+            elif hasattr(packet.tls, 'handshake_ciphersuites'):
+                # In Client Hello, it's a list/string of supported ciphers. We might truncate it if too long.
+                ciphers = str(packet.tls.handshake_ciphersuites)
+                data["tls_ciphersuites"] = ciphers[:100] + "..." if len(ciphers) > 100 else ciphers
+
+            # Extract Certificate information (e.g., DNS name or Subject from x509)
+            if hasattr(packet.tls, 'x509ce_dnsname'):
+                data["tls_certificate"] = packet.tls.x509ce_dnsname
+            elif hasattr(packet.tls, 'x509sat_utf8string'):
+                data["tls_certificate"] = packet.tls.x509sat_utf8string
+                
         except AttributeError:
             pass
         return data
@@ -92,3 +121,95 @@ class PayloadStrategy(ProtocolStrategy):
             pass
         return data
 
+class ICMPStrategy(ProtocolStrategy):
+    def can_handle(self, packet):
+        return 'ICMP' in packet or 'ICMPV6' in packet
+        
+    def extract_data(self, packet):
+        data = {"icmp_type": None, "icmp_code": None}
+        try:
+            layer = packet.icmpv6 if hasattr(packet, 'icmpv6') else packet.icmp
+            if hasattr(layer, 'type'):
+                data["icmp_type"] = layer.type
+            if hasattr(layer, 'code'):
+                data["icmp_code"] = layer.code
+        except AttributeError:
+            pass
+        return data
+
+class DHCPStrategy(ProtocolStrategy):
+    def can_handle(self, packet):
+        return 'BOOTP' in packet or 'DHCP' in packet
+        
+    def extract_data(self, packet):
+        data = {"dhcp_hostname": None, "dhcp_mac": None}
+        try:
+            # Pyshark usually parses DHCP as BOOTP
+            layer = packet.dhcp if hasattr(packet, 'dhcp') else packet.bootp
+            if hasattr(layer, 'option_hostname'):
+                data["dhcp_hostname"] = layer.option_hostname
+            if hasattr(layer, 'hw_mac_addr'):
+                data["dhcp_mac"] = layer.hw_mac_addr
+        except AttributeError:
+            pass
+        return data
+
+class NTPStrategy(ProtocolStrategy):
+    def can_handle(self, packet):
+        return 'NTP' in packet
+        
+    def extract_data(self, packet):
+        data = {"ntp_flags": None}
+        try:
+            if hasattr(packet.ntp, 'flags'):
+                data["ntp_flags"] = packet.ntp.flags
+        except AttributeError:
+            pass
+        return data
+
+class QUICStrategy(ProtocolStrategy):
+    def can_handle(self, packet):
+        return 'QUIC' in packet
+        
+    def extract_data(self, packet):
+        data = {"quic_dcid": None, "quic_scid": None}
+        try:
+            if hasattr(packet.quic, 'dcid'):
+                data["quic_dcid"] = packet.quic.dcid
+            if hasattr(packet.quic, 'scid'):
+                data["quic_scid"] = packet.quic.scid
+        except AttributeError:
+            pass
+        return data
+
+class SSDPStrategy(ProtocolStrategy):
+    def can_handle(self, packet):
+        return 'SSDP' in packet
+        
+    def extract_data(self, packet):
+        data = {"ssdp_st": None, "ssdp_location": None}
+        try:
+            if hasattr(packet.ssdp, 'st'):
+                data["ssdp_st"] = packet.ssdp.st
+            if hasattr(packet.ssdp, 'location'):
+                data["ssdp_location"] = packet.ssdp.location
+        except AttributeError:
+            pass
+        return data
+
+class ARPStrategy(ProtocolStrategy):
+    def can_handle(self, packet):
+        return 'ARP' in packet
+        
+    def extract_data(self, packet):
+        data = {"arp_opcode": None, "arp_src_mac": None, "arp_dst_mac": None}
+        try:
+            if hasattr(packet.arp, 'opcode'):
+                data["arp_opcode"] = packet.arp.opcode
+            if hasattr(packet.arp, 'src_hw_mac'):
+                data["arp_src_mac"] = packet.arp.src_hw_mac
+            if hasattr(packet.arp, 'dst_hw_mac'):
+                data["arp_dst_mac"] = packet.arp.dst_hw_mac
+        except AttributeError:
+            pass
+        return data

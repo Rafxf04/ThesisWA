@@ -1,0 +1,976 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "nettelemetry",
+    "questdb",
+    "pcap"
+  ],
+  "time": {
+    "from": "2026-07-25T07:04:23.252273500Z",
+    "to": "2026-07-26T00:51:50.996422500Z"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m"
+    ]
+  },
+  "timezone": "browser",
+  "title": "NetTelemetry - Dashboard per Tema2",
+  "uid": "nettelemetry-tema2",
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "title": "🏠 Panoramica KPI e Metriche Globali (Tabella: Tema2)",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 0,
+        "y": 1
+      },
+      "id": 1,
+      "title": "Total Captured Packets",
+      "type": "stat",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT count(*) FROM Tema2 WHERE 1=1;",
+          "query": "SELECT count(*) FROM Tema2 WHERE 1=1;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value"
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 1
+      },
+      "id": 2,
+      "title": "Total Bytes Processed",
+      "type": "stat",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT sum(length) FROM Tema2 WHERE 1=1;",
+          "query": "SELECT sum(length) FROM Tema2 WHERE 1=1;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 10,
+        "y": 1
+      },
+      "id": 3,
+      "title": "Average Packet Size (bytes)",
+      "type": "stat",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT avg(length) FROM Tema2 WHERE 1=1;",
+          "query": "SELECT avg(length) FROM Tema2 WHERE 1=1;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 15,
+        "y": 1
+      },
+      "id": 4,
+      "title": "Unique Source Hosts",
+      "type": "stat",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT count(DISTINCT src_ip) FROM Tema2 WHERE 1=1;",
+          "query": "SELECT count(DISTINCT src_ip) FROM Tema2 WHERE 1=1;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "id": 5,
+      "title": "Unique Destination Hosts",
+      "type": "stat",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT count(DISTINCT dst_ip) FROM Tema2 WHERE 1=1;",
+          "query": "SELECT count(DISTINCT dst_ip) FROM Tema2 WHERE 1=1;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 200,
+      "title": "📈 Analisi Temporale e Throughput di Rete (Tabella: Tema2)",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "id": 6,
+      "title": "Packet Rate over Time (Packets / sec)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT timestamp, count(*) as packet_rate FROM Tema2 WHERE 1=1 SAMPLE BY 1s ALIGN TO CALENDAR;",
+          "query": "SELECT timestamp, count(*) as packet_rate FROM Tema2 WHERE 1=1 SAMPLE BY 1s ALIGN TO CALENDAR;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "id": 7,
+      "title": "Data Throughput (Bytes / sec)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT timestamp, sum(length) as total_bytes FROM Tema2 WHERE 1=1 SAMPLE BY 1s ALIGN TO CALENDAR;",
+          "query": "SELECT timestamp, sum(length) as total_bytes FROM Tema2 WHERE 1=1 SAMPLE BY 1s ALIGN TO CALENDAR;",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 300,
+      "title": "🌐 Protocolli di Rete e Analisi delle Porte (Tabella: Tema2)",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      },
+      "id": 8,
+      "title": "Distribuzione Protocolli",
+      "type": "piechart",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT protocol, count(*) as count FROM Tema2 WHERE 1=1 AND protocol != 'Unknown' GROUP BY protocol;",
+          "query": "SELECT protocol, count(*) as count FROM Tema2 WHERE 1=1 AND protocol != 'Unknown' GROUP BY protocol;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [],
+          "fields": ""
+        },
+        "pieType": "pie",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "displayLabels": [
+          "percent",
+          "name"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 15
+      },
+      "id": 9,
+      "title": "Top Destination Ports (Packet Count)",
+      "type": "barchart",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT dst_port, count(*) as count FROM Tema2 WHERE 1=1 GROUP BY dst_port ORDER BY count DESC LIMIT 10;",
+          "query": "SELECT dst_port, count(*) as count FROM Tema2 WHERE 1=1 GROUP BY dst_port ORDER BY count DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "string",
+                "targetField": "dst_port"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 15
+      },
+      "id": 10,
+      "title": "Top Source Ports (Volume Byte)",
+      "type": "barchart",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT src_port, sum(length) as total_bytes FROM Tema2 WHERE 1=1 GROUP BY src_port ORDER BY total_bytes DESC LIMIT 10;",
+          "query": "SELECT src_port, sum(length) as total_bytes FROM Tema2 WHERE 1=1 GROUP BY src_port ORDER BY total_bytes DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "string",
+                "targetField": "src_port"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 400,
+      "title": "📱 Servizi Applicativi e Deep Packet Inspection (Tabella: Tema2)",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 24
+      },
+      "id": 11,
+      "title": "Top Network Services (Packet Count)",
+      "type": "barchart",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT service_name, count(*) as count FROM Tema2 WHERE 1=1 GROUP BY service_name ORDER BY count DESC LIMIT 10;",
+          "query": "SELECT service_name, count(*) as count FROM Tema2 WHERE 1=1 GROUP BY service_name ORDER BY count DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 24
+      },
+      "id": 12,
+      "title": "Top Applications (Volume Byte)",
+      "type": "barchart",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT dst_app_name, sum(length) as total_bytes FROM Tema2 WHERE 1=1 AND dst_app_name != 'Local Network' GROUP BY dst_app_name ORDER BY total_bytes DESC LIMIT 10;",
+          "query": "SELECT dst_app_name, sum(length) as total_bytes FROM Tema2 WHERE 1=1 AND dst_app_name != 'Local Network' GROUP BY dst_app_name ORDER BY total_bytes DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 24
+      },
+      "id": 13,
+      "title": "TLS/SNI Connections Analysis",
+      "type": "table",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT tls_sni, count(*) as tls_connections, sum(length) as total_bytes FROM Tema2 WHERE 1=1 AND length(tls_sni) > 0 GROUP BY tls_sni ORDER BY tls_connections DESC LIMIT 10;",
+          "query": "SELECT tls_sni, count(*) as tls_connections, sum(length) as total_bytes FROM Tema2 WHERE 1=1 AND length(tls_sni) > 0 GROUP BY tls_sni ORDER BY tls_connections DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 500,
+      "title": "🌍 Geolocalizzazione e Distribuzione Geografica (Tabella: Tema2)",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 33
+      },
+      "id": 14,
+      "title": "Traffic by Destination Country",
+      "type": "barchart",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT geo_country, count(*) as count FROM Tema2 WHERE 1=1 AND geo_country NOT IN ('Local', 'Local Network', 'Unknown') GROUP BY geo_country ORDER BY count DESC LIMIT 10;",
+          "query": "SELECT geo_country, count(*) as count FROM Tema2 WHERE 1=1 AND geo_country NOT IN ('Local', 'Local Network', 'Unknown') GROUP BY geo_country ORDER BY count DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 33
+      },
+      "id": 15,
+      "title": "Top Foreign Countries (Volume Byte)",
+      "type": "table",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT geo_country, count(*) as packet_count, sum(length) as total_bytes FROM Tema2 WHERE 1=1 AND geo_country NOT IN ('Local', 'Local Network', 'Unknown') GROUP BY geo_country ORDER BY total_bytes DESC LIMIT 10;",
+          "query": "SELECT geo_country, count(*) as packet_count, sum(length) as total_bytes FROM Tema2 WHERE 1=1 AND geo_country NOT IN ('Local', 'Local Network', 'Unknown') GROUP BY geo_country ORDER BY total_bytes DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 600,
+      "title": "💻 Host, Conversazioni e Log dei Flussi (Tabella: Tema2)",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 42
+      },
+      "id": 16,
+      "title": "Top Talkers (IP Sorgente)",
+      "type": "table",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT src_ip, src_app_name, count(*) as packets_sent, sum(length) as bytes_sent FROM Tema2 WHERE 1=1 AND src_app_name != 'Local Network' GROUP BY src_ip, src_app_name ORDER BY bytes_sent DESC LIMIT 10;",
+          "query": "SELECT src_ip, src_app_name, count(*) as packets_sent, sum(length) as bytes_sent FROM Tema2 WHERE 1=1 AND src_app_name != 'Local Network' GROUP BY src_ip, src_app_name ORDER BY bytes_sent DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 42
+      },
+      "id": 17,
+      "title": "Top Receivers (IP Destinazione)",
+      "type": "table",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT dst_ip, dst_app_name, geo_country, count(*) as packets_received, sum(length) as bytes_received FROM Tema2 WHERE 1=1 AND dst_app_name != 'Local Network' GROUP BY dst_ip, dst_app_name, geo_country ORDER BY bytes_received DESC LIMIT 10;",
+          "query": "SELECT dst_ip, dst_app_name, geo_country, count(*) as packets_received, sum(length) as bytes_received FROM Tema2 WHERE 1=1 AND dst_app_name != 'Local Network' GROUP BY dst_ip, dst_app_name, geo_country ORDER BY bytes_received DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "id": 18,
+      "title": "Recent Live Packet Flow Logs",
+      "type": "table",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT * FROM (SELECT timestamp, src_app_name, dst_app_name, geo_country, length FROM Tema2 WHERE 1=1 ORDER BY timestamp DESC LIMIT 100) ORDER BY timestamp ASC;",
+          "query": "SELECT * FROM (SELECT timestamp, src_app_name, dst_app_name, geo_country, length FROM Tema2 WHERE 1=1 ORDER BY timestamp DESC LIMIT 100) ORDER BY timestamp ASC;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "timestamp"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 60
+      },
+      "id": 700,
+      "title": "🛡️ Sicurezza di Rete e Anomalie (Tabella: Tema2)",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 61
+      },
+      "id": 19,
+      "title": "Port Scanning Detection (Host contattando porte multiple)",
+      "type": "table",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT * FROM (SELECT src_ip, count(DISTINCT dst_port) as unique_ports_targeted, count(*) as total_packets FROM Tema2 WHERE 1=1 GROUP BY src_ip ORDER BY unique_ports_targeted DESC) WHERE unique_ports_targeted > 5;",
+          "query": "SELECT * FROM (SELECT src_ip, count(DISTINCT dst_port) as unique_ports_targeted, count(*) as total_packets FROM Tema2 WHERE 1=1 GROUP BY src_ip ORDER BY unique_ports_targeted DESC) WHERE unique_ports_targeted > 5;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 61
+      },
+      "id": 20,
+      "title": "Traffico Non Classificato (Unknown Services)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT timestamp, count(*) as unknown_packets, sum(length) as unknown_bytes FROM Tema2 WHERE 1=1 AND service_name = 'Unknown' SAMPLE BY 1m ALIGN TO CALENDAR;",
+          "query": "SELECT timestamp, count(*) as unknown_packets, sum(length) as unknown_bytes FROM Tema2 WHERE 1=1 AND service_name = 'Unknown' SAMPLE BY 1m ALIGN TO CALENDAR;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 70
+      },
+      "id": 800,
+      "title": "🔍 Analisi Profonda Protocolli (HTTP, DNS, TLS) (Tabella: Tema2)",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 71
+      },
+      "id": 21,
+      "title": "HTTP - Top Hosts Richiesti",
+      "type": "barchart",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT http_host, count(*) as requests FROM Tema2 WHERE 1=1 AND length(http_host) > 0 GROUP BY http_host ORDER BY requests DESC LIMIT 10;",
+          "query": "SELECT http_host, count(*) as requests FROM Tema2 WHERE 1=1 AND length(http_host) > 0 GROUP BY http_host ORDER BY requests DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 71
+      },
+      "id": 22,
+      "title": "HTTP - Metodi Utilizzati",
+      "type": "piechart",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT http_method, count(*) as count FROM Tema2 WHERE 1=1 AND length(http_method) > 0 GROUP BY http_method;",
+          "query": "SELECT http_method, count(*) as count FROM Tema2 WHERE 1=1 AND length(http_method) > 0 GROUP BY http_method;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [],
+          "fields": ""
+        },
+        "pieType": "pie",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "displayLabels": [
+          "percent",
+          "name"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 71
+      },
+      "id": 23,
+      "title": "DNS - Top Query Risolte",
+      "type": "table",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT dns_query, count(*) as query_count FROM Tema2 WHERE 1=1 AND length(dns_query) > 0 GROUP BY dns_query ORDER BY query_count DESC LIMIT 10;",
+          "query": "SELECT dns_query, count(*) as query_count FROM Tema2 WHERE 1=1 AND length(dns_query) > 0 GROUP BY dns_query ORDER BY query_count DESC LIMIT 10;",
+          "refId": "A",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 79
+      },
+      "id": 24,
+      "title": "TLS - Versioni Negoziate",
+      "type": "piechart",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT CASE tls_version WHEN '0x0304' THEN 'TLS 1.3' WHEN '0x0303' THEN 'TLS 1.2' WHEN '0x0302' THEN 'TLS 1.1' WHEN '0x0301' THEN 'TLS 1.0' WHEN '0x0300' THEN 'SSL 3.0' WHEN '0x0002' THEN 'SSL 2.0' ELSE tls_version END as tls_version, count(*) as count FROM Tema2 WHERE 1=1 AND length(tls_version) > 0 GROUP BY tls_version;",
+          "query": "SELECT CASE tls_version WHEN '0x0304' THEN 'TLS 1.3' WHEN '0x0303' THEN 'TLS 1.2' WHEN '0x0302' THEN 'TLS 1.1' WHEN '0x0301' THEN 'TLS 1.0' WHEN '0x0300' THEN 'SSL 3.0' WHEN '0x0002' THEN 'SSL 2.0' ELSE tls_version END as tls_version, count(*) as count FROM Tema2 WHERE 1=1 AND length(tls_version) > 0 GROUP BY tls_version;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [],
+          "fields": ""
+        },
+        "pieType": "pie",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "displayLabels": [
+          "percent",
+          "name"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "calcs": []
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 79
+      },
+      "id": 25,
+      "title": "Dati in Chiaro (Payload Preview)",
+      "type": "table",
+      "datasource": {
+        "type": "questdb-questdb-datasource",
+        "uid": "QuestDB"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "questdb-questdb-datasource",
+            "uid": "QuestDB"
+          },
+          "rawSql": "SELECT * FROM (SELECT timestamp, src_ip, dst_ip, protocol, dst_port, payload_len, payload_preview FROM Tema2 WHERE 1=1 AND length(payload_preview) > 0 ORDER BY timestamp DESC LIMIT 50) AS recent_data ORDER BY timestamp ASC;",
+          "query": "SELECT * FROM (SELECT timestamp, src_ip, dst_ip, protocol, dst_port, payload_len, payload_preview FROM Tema2 WHERE 1=1 AND length(payload_preview) > 0 ORDER BY timestamp DESC LIMIT 50) AS recent_data ORDER BY timestamp ASC;",
+          "refId": "A",
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "timestamp"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

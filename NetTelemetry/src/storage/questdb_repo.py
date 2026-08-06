@@ -16,18 +16,20 @@ class QuestDBRepository:
         self.pending_count = 0
         self.last_reconnect_attempt = 0
 
-    def connect(self):
+    def connect(self) -> bool:
         if self.connected and self.sender is not None:
-            return
+            return True
         self.last_reconnect_attempt = time.time()
         try:
             self.sender = Sender('http', self.host, self.port)
             self.sender.establish()
             self.connected = True
             print(f"Connected to QuestDB at {self.host}:{self.port} (ILP HTTP)")
+            return True
         except Exception as e:
             self.connected = False
             print(f"QuestDB connection offline/unavailable at {self.host}:{self.port} ({e})")
+            return False
 
     def insert_packet(self, flow_data: dict):
         if not self.connected or self.sender is None:
@@ -60,7 +62,9 @@ class QuestDBRepository:
                     'src_ip': str(flow_data.get('src_ip') or 'Unknown'),
                     'dst_ip': str(flow_data.get('dst_ip') or 'Unknown'),
                     'src_app_name': str(flow_data.get('src_app_name') or 'Unknown'),
+                    'src_category': str(flow_data.get('src_category') or 'Unknown'),
                     'dst_app_name': str(flow_data.get('dst_app_name') or 'Unknown'),
+                    'dst_category': str(flow_data.get('dst_category') or 'Unknown'),
                     'geo_country': str(flow_data.get('geo_country') or 'Unknown'),
                 },
                 columns={
@@ -68,7 +72,16 @@ class QuestDBRepository:
                     'dst_port': int(flow_data.get('dst_port') or 0),
                     'length': int(flow_data.get('length') or 0),
                     'tls_sni': str(flow_data.get('tls_sni') or ''),
-                    'payload_len': int(flow_data.get('payload_len') or 0)
+                    'tls_version': str(flow_data.get('tls_version') or ''),
+                    'tls_ciphersuites': str(flow_data.get('tls_ciphersuites') or ''),
+                    'tls_certificate': str(flow_data.get('tls_certificate') or ''),
+                    'http_host': str(flow_data.get('http_host') or ''),
+                    'http_method': str(flow_data.get('http_method') or ''),
+                    'http_uri': str(flow_data.get('http_uri') or ''),
+                    'http_user_agent': str(flow_data.get('http_user_agent') or ''),
+                    'dns_query': str(flow_data.get('dns_query') or ''),
+                    'payload_len': int(flow_data.get('payload_len') or 0),
+                    'payload_preview': str(flow_data.get('payload_preview') or '')
                 },
                 at=TimestampNanos(at_ns)
             )
