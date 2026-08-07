@@ -66,6 +66,8 @@ class QuestDBRepository:
                     'dst_app_name': str(flow_data.get('dst_app_name') or 'Unknown'),
                     'dst_category': str(flow_data.get('dst_category') or 'Unknown'),
                     'geo_country': str(flow_data.get('geo_country') or 'Unknown'),
+                    'mac_src': str(flow_data.get('mac_src') or 'Unknown'),
+                    'mac_dst': str(flow_data.get('mac_dst') or 'Unknown'),
                 },
                 columns={
                     'src_port': int(flow_data.get('src_port') or 0),

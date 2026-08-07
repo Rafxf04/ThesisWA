@@ -28,6 +28,8 @@ class StatsTracker(PacketObserver):
             print(f"Protocol: {proto:<10} | Count: {count:<8} | Bytes: {bytes_total}")
 
 
+from collections import deque
+
 class FlowTracker(PacketObserver):
     """
     Observer that tracks flows, destination servers, and applies Enrichment.
@@ -35,7 +37,7 @@ class FlowTracker(PacketObserver):
     def __init__(self, enrichment_service=None, db_repo=None):
         self.enrichment_service = enrichment_service
         self.db_repo = db_repo
-        self.flows = []
+        self.flows = deque(maxlen=100)
         self.domain_categorizer = DomainCategorizer()
         self.ip_app_cache = {}
 
@@ -48,11 +50,28 @@ class FlowTracker(PacketObserver):
         tls_sni = packet_data.get("tls_sni")
         dst_port = packet_data.get("dst_port")
 
-        # Basic local service identification via well-known ports
-        service_name = self._guess_service(dst_port)
+        # 1. Primary: Deep Packet Inspection (DPI) from pyshark
+        highest_layer = str(packet_data.get("highest_layer", "")).upper()
+        base_layers = {"IPV4", "IPV6", "ARP", "ETH", "DATA", "FRAME", "IP", "UNKNOWN", ""}
+        
+        service_name = "Unknown"
+        if highest_layer not in base_layers and highest_layer not in {"TCP", "UDP"}:
+            service_name = highest_layer
+            
+        # 2. Fallback: Basic local service identification via well-known ports
         if service_name == "Unknown":
-             # Try src_port as well
-             service_name = self._guess_service(packet_data.get("src_port"))
+            service_name = self._guess_service(dst_port)
+            if service_name == "Unknown":
+                service_name = self._guess_service(packet_data.get("src_port"))
+                
+            # If still unknown, use transport layer name (TCP/UDP Unclassified)
+            if service_name == "Unknown":
+                if highest_layer in {"TCP", "UDP"}:
+                    service_name = f"{highest_layer} (Unclassified)"
+                else:
+                    proto = str(packet_data.get("protocol", "")).upper()
+                    if proto and proto not in base_layers:
+                        service_name = f"{proto} (Unclassified)"
         
         # Basic local app identification via User-Agent and SNI
         http_user_agent = packet_data.get("http_user_agent")
@@ -232,7 +251,7 @@ class FlowTracker(PacketObserver):
         
     def print_flows(self, limit=10):
         print(f"\n--- Recent Flows (showing last {limit}) ---")
-        for f in self.flows[-limit:]:
+        for f in list(self.flows)[-limit:]:
             src_str = f'Src: {f.get("src_ip")}:{f.get("src_port")}'
             dst_str = f'Dst: {f.get("dst_ip")}:{f.get("dst_port")}'
             proto = f.get("protocol")

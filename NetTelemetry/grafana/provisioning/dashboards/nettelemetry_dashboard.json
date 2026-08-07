@@ -229,7 +229,7 @@
             "type": "questdb-questdb-datasource",
             "uid": "QuestDB"
           },
-          "query": "SELECT timestamp, src_ip, dst_ip, protocol, dst_category, dst_app_name, tls_certificate, tls_ciphersuites, geo_country, length FROM network_traffic ORDER BY timestamp DESC LIMIT 100;",
+          "query": "SELECT timestamp, src_ip, dst_ip, protocol, dst_category, dst_app_name, tls_certificate, tls_ciphersuites, geo_country, length FROM network_traffic WHERE geo_country NOT IN ('Local', 'Local Network') ORDER BY timestamp DESC LIMIT 100;",
           "refId": "A"
         }
       ]

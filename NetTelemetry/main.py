@@ -60,6 +60,9 @@ def main():
     finally:
         if db_repo:
             db_repo.close()
+        
+        if enrich_service and hasattr(enrich_service, 'flush'):
+            enrich_service.flush()
 
         # Print results
         stats_tracker.print_stats()

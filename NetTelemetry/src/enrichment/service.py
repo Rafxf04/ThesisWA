@@ -49,6 +49,7 @@ class CacheProxy(EnrichmentService):
         self.service = service
         self.cache_file = ConfigManager().get("cache_file", "enrichment_cache.json")
         self.cache = self._load_cache()
+        self.dirty_count = 0
 
     def _load_cache(self) -> dict:
         if os.path.exists(self.cache_file):
@@ -63,6 +64,7 @@ class CacheProxy(EnrichmentService):
         try:
             with open(self.cache_file, "w") as f:
                 json.dump(self.cache, f)
+            self.dirty_count = 0
         except Exception:
             pass
 
@@ -74,7 +76,14 @@ class CacheProxy(EnrichmentService):
         result = self.service.lookup(ip_address)
         if result:
             self.cache[ip_address] = result
-            # Save incrementally (in a real app, maybe save periodically)
-            self._save_cache()
+            self.dirty_count += 1
+            # Save incrementally
+            if self.dirty_count >= 50:
+                self._save_cache()
             
         return result
+        
+    def flush(self):
+        """Forces the cache to be saved to disk."""
+        if self.dirty_count > 0:
+            self._save_cache()

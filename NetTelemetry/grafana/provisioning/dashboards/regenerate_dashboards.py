@@ -262,7 +262,7 @@ def generate_tema_dashboard(tema_num):
     # Recent Packet Flow Logs
     panels.append(make_panel(
         id=18, title="Recent Live Packet Flow Logs", panel_type="table",
-        query=f"SELECT * FROM (SELECT timestamp, src_app_name, dst_app_name, geo_country, length FROM {table_name} WHERE {tf} ORDER BY timestamp DESC LIMIT 100) ORDER BY timestamp ASC;",
+        query=f"SELECT * FROM (SELECT timestamp, src_app_name, dst_app_name, geo_country, length FROM {table_name} WHERE {tf} AND geo_country NOT IN ('Local', 'Local Network') ORDER BY timestamp DESC LIMIT 100) ORDER BY timestamp ASC;",
         gridPos={"h": 10, "w": 24, "x": 0, "y": 50},
         transformations=[{"id": "sortBy", "options": {"fields": {}, "sort": [{"desc": True, "field": "timestamp"}]}}]
     ))
@@ -338,7 +338,28 @@ def generate_tema_dashboard(tema_num):
         transformations=[{"id": "sortBy", "options": {"fields": {}, "sort": [{"desc": True, "field": "timestamp"}]}}]
     ))
 
+    # === Row: Tema 9 - Dispositivi Fisici ===
+    panels.append({
+        "collapsed": False,
+        "gridPos": {"h": 1, "w": 24, "x": 0, "y": 88},
+        "id": 900,
+        "title": f"\U0001f4f1 Dispositivi Fisici e Indirizzi MAC (Tabella: {table_name})",
+        "type": "row"
+    })
 
+    # Top Source MAC
+    panels.append(make_panel(
+        id=26, title="Top Dispositivi Sorgente (MAC)", panel_type="table",
+        query=f"SELECT mac_src, count(*) as packets_sent, sum(length) as bytes_sent FROM {table_name} WHERE {tf} AND length(mac_src) > 0 AND mac_src != 'Unknown' GROUP BY mac_src ORDER BY bytes_sent DESC LIMIT 10;",
+        gridPos={"h": 8, "w": 12, "x": 0, "y": 89}
+    ))
+
+    # Top Destination MAC
+    panels.append(make_panel(
+        id=27, title="Top Dispositivi Destinazione (MAC)", panel_type="table",
+        query=f"SELECT mac_dst, count(*) as packets_received, sum(length) as bytes_received FROM {table_name} WHERE {tf} AND length(mac_dst) > 0 AND mac_dst != 'Unknown' GROUP BY mac_dst ORDER BY bytes_received DESC LIMIT 10;",
+        gridPos={"h": 8, "w": 12, "x": 12, "y": 89}
+    ))
     min_ts, max_ts = get_time_bounds(table_name)
     dashboard = {
         "annotations": {"list": []},

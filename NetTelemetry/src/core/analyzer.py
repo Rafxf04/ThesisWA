@@ -83,8 +83,15 @@ class PcapAnalyzer(Observable):
             "dst_ip": None,
             "src_port": None,
             "dst_port": None,
+            "mac_src": None,
+            "mac_dst": None,
             "protocol": getattr(packet, 'transport_layer', None) or getattr(packet, 'highest_layer', 'Unknown')
         }
+
+        # Ethernet layer (MAC addresses)
+        if hasattr(packet, 'eth'):
+            packet_data["mac_src"] = packet.eth.src
+            packet_data["mac_dst"] = packet.eth.dst
 
         # IP layer
         if hasattr(packet, 'ip'):
