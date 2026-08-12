@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HITL - Report Etichettatura AI</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; padding: 20px; }
+        h1 { text-align: center; color: #ffffff; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: #1e1e1e; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; transition: transform 0.2s; border: 2px solid transparent;}
+        .card.verified { border-color: #4caf50; }
+        .card img { width: 100%; height: 320px; object-fit: contain; background-color: #0a0a0a; }
+        .info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column;}
+        .label { font-size: 1.2em; font-weight: bold; color: #4db8ff; margin-bottom: 10px; }
+        .score { font-size: 0.9em; color: #aaaaaa; }
+        .partial { color: #ff5252; font-weight: bold; font-size: 0.8em; margin-top: 5px; }
+        
+        .controls { margin-top: auto; padding-top: 15px; border-top: 1px solid #333; display: flex; flex-direction: column; gap: 10px; }
+        .searchable-input { padding: 8px; border-radius: 6px; background-color: #2d2d2d; color: white; border: 1px solid #444; width: 100%; box-sizing: border-box; }
+        button { padding: 8px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
+        .btn-save { background-color: #4db8ff; color: #000; }
+        .btn-save:hover { background-color: #3aa3e8; }
+        .btn-confirm { background-color: #4caf50; color: #fff; }
+        .btn-confirm:hover { background-color: #43a047; }
+        .btn-filter { background-color: #333; color: white; padding: 10px 20px; font-size: 1em; border-radius: 8px; margin-bottom: 20px; }
+        .btn-filter:hover { background-color: #444; }
+        .status { font-size: 0.8em; text-align: center; height: 16px; margin-top: 5px; color: #4caf50;}
+    </style>
+</head>
+<body>
+    <datalist id="all-labels-list">
+        {% for lbl in all_labels %}
+        <option value="{{ lbl }}">
+        {% endfor %}
+    </datalist>
+
+    <h1>HITL Dashboard - Validazione Etichette</h1>
+    <div style="text-align: center;">
+        <button id="filter-btn" class="btn-filter" onclick="toggleVerified()">Nascondi Foto Verificate</button>
+    </div>
+    <div class="grid">
+        {% for img in images %}
+        <div class="card {% if img.user_verified %}verified{% endif %}" id="card-{{ img.id }}">
+            <img src="data:image/jpeg;base64,{{ img.image_b64 }}" loading="lazy" alt="Image">
+            <div class="info">
+                <div class="label" id="label-text-{{ img.id }}">🏷️ {{ img.label }}</div>
+                <div class="score">Affinità AI: {{ "%.2f"|format(img.score) }}</div>
+                {% if img.is_partial %}
+                <div class="partial">⚠️ Match Parziale (Sotto Soglia)</div>
+                {% endif %}
+                
+                <div class="controls">
+                    <input list="all-labels-list" id="select-{{ img.id }}" class="searchable-input" value="{{ img.label }}" placeholder="Cerca o seleziona...">
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-confirm" style="flex:1" onclick="saveLabel({{ img.id }}, '{{ img.label }}')">✓ Conferma AI</button>
+                        <button class="btn-save" style="flex:1" onclick="saveDropdownLabel({{ img.id }})">Salva Nuova</button>
+                    </div>
+                    <div class="status" id="status-{{ img.id }}">
+                        {% if img.user_verified %}✓ Verificato{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        let hideVerified = false;
+
+        function toggleVerified() {
+            hideVerified = !hideVerified;
+            const btn = document.getElementById('filter-btn');
+            const verifiedCards = document.querySelectorAll('.card.verified');
+            
+            if (hideVerified) {
+                btn.textContent = "Mostra Tutte le Foto";
+                verifiedCards.forEach(card => card.style.display = 'none');
+            } else {
+                btn.textContent = "Nascondi Foto Verificate";
+                verifiedCards.forEach(card => card.style.display = 'flex');
+            }
+        }
+
+        function saveDropdownLabel(id) {
+            const selectEl = document.getElementById(`select-${id}`);
+            const newLabel = selectEl.value;
+            saveLabel(id, newLabel);
+        }
+
+        function saveLabel(id, label) {
+            const statusEl = document.getElementById(`status-${id}`);
+            statusEl.textContent = "Salvataggio...";
+            statusEl.style.color = "#aaaaaa";
+
+            fetch('/api/update_label', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: id, label: label })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusEl.textContent = "✓ Verificato e Salvato";
+                    statusEl.style.color = "#4caf50";
+                    document.getElementById(`label-text-${id}`).textContent = "🏷️ " + label;
+                    
+                    const card = document.getElementById(`card-${id}`);
+                    card.classList.add("verified");
+                    if (hideVerified) {
+                        card.style.display = 'none';
+                    }
+                } else {
+                    statusEl.textContent = "❌ Errore";
+                    statusEl.style.color = "#ff5252";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                statusEl.textContent = "❌ Errore di rete";
+                statusEl.style.color = "#ff5252";
+            });
+        }
+    </script>
+</body>
+</html>

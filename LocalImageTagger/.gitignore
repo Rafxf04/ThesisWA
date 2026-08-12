@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+ENV/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Databases, Reports & Scratch
+*.sqlite
+*.db
+report.html
+*_category_counts.json
+scratch/
+
+# Image Directories
+altre_immagini/
+ancora_nuove_immagini/
+nuove_immagini/
+
+# Keep the images folder but ignore its contents
+images/*
+!images/.gitkeep

@@ -1,0 +1,46 @@
+dog|cane
+cat|gatto
+car|automobile
+nature landscape|paesaggio naturale
+portrait of a person|ritratto di persona
+food|cibo
+technology|tecnologia
+sport|sport
+football world cup 2026|mondiali calcio 2026
+singer ultimo|cantante ultimo 2026
+tennis Sinner-Djokovic|tennis Sinner-Djokovic 2026
+cooking|Cucina
+dental hygiene|Igiene Dentale
+fashion|Moda
+life hacks|Life Hacks
+football|Calcio
+singer Ultimo|Cantante Ultimo
+tennis Sinner-Djokovic|Tennis Sinner-Djokovic
+Temptation Island reality show|Temptation Island
+animals|Animali
+cars|Macchine
+jewelry|Gioielli
+funny internet post|Fun Posts
+sexy girls|Ragazze Sexy
+science|Scienza
+panoramic view|Panorami
+new banknotes money|Nuove Banconote
+heroic acts|Atti eroici
+banking and finance|Banking
+cleaning|Pulizia
+video games|Videogame
+news broadcast or newspaper|News
+design and architecture|Design
+Formula 1 racing|F1
+university campus or students|Uni
+volleyball|Pallavolo
+movie or film|Film
+skincare|Skincare
+music|Musica
+motorsport racing|Motorsport
+motivational quotes or video|Video/frasi motivazionali
+electronic devices|Apparati elettronici
+digital payments|Payments
+do it yourself DIY|DIY
+swimming|Nuoto
+wedding|Matrimoni
