@@ -24,3 +24,7 @@ _debug_data.py
 extract.py
 tema5_from_api.json
 
+# Databases & Scratch
+*.sqlite
+*.db
+scratch/

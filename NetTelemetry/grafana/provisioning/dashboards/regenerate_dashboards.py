@@ -9,6 +9,18 @@ import urllib.request
 import urllib.parse
 
 def get_time_bounds(table_name):
+    """
+    Scopo: Recupera i limiti temporali (minimo e massimo) per una specifica tabella su QuestDB.
+
+    Parametri:
+    - table_name (str): Il nome della tabella da interrogare.
+
+    Valore di ritorno:
+    - tuple: (min_ts, max_ts) stringhe rappresentanti i timestamp.
+
+    Eccezioni:
+    - Nessuna (gli errori vengono intercettati e stampati, ritornando valori di default).
+    """
     try:
         query = urllib.parse.quote(f"SELECT min(timestamp), max(timestamp) FROM {table_name}")
         url = f"http://localhost:9000/exec?query={query}"
@@ -26,12 +38,38 @@ def get_time_bounds(table_name):
 TIME_FILTER = "1=1"
 
 def make_datasource(uid="QuestDB"):
+    """
+    Scopo: Genera la configurazione base per il datasource del pannello Grafana.
+
+    Parametri:
+    - uid (str): L'identificativo unico del datasource (default 'QuestDB').
+
+    Valore di ritorno:
+    - dict: Dizionario rappresentante il datasource.
+
+    Eccezioni:
+    - Nessuna eccezione prevista.
+    """
     return {
         "type": "questdb-questdb-datasource",
         "uid": uid
     }
 
 def make_target(query, uid="QuestDB", format_type=None):
+    """
+    Scopo: Crea la struttura del target (query) per un pannello Grafana.
+
+    Parametri:
+    - query (str): La query SQL grezza da eseguire.
+    - uid (str): UID del datasource.
+    - format_type (str, opzionale): Formato di ritorno ('table' o 'timeseries').
+
+    Valore di ritorno:
+    - dict: Dizionario della configurazione del target.
+
+    Eccezioni:
+    - Nessuna eccezione prevista.
+    """
     target = {
         "datasource": make_datasource(uid),
         "rawSql": query,
@@ -43,6 +81,26 @@ def make_target(query, uid="QuestDB", format_type=None):
     return target
 
 def make_panel(id, title, panel_type, query, gridPos, uid="QuestDB", extra_options=None, extra_field_config=None, transformations=None):
+    """
+    Scopo: Genera la configurazione JSON completa per un singolo pannello della dashboard.
+
+    Parametri:
+    - id (int): ID numerico del pannello.
+    - title (str): Titolo del pannello.
+    - panel_type (str): Tipo di pannello ('timeseries', 'table', 'stat', etc).
+    - query (str): Query associata al pannello.
+    - gridPos (dict): Posizione e dimensione del pannello nella griglia.
+    - uid (str): UID del datasource.
+    - extra_options (dict): Opzioni aggiuntive di configurazione.
+    - extra_field_config (dict): Configurazioni per i campi (es. unità di misura).
+    - transformations (list): Trasformazioni dei dati da applicare in Grafana.
+
+    Valore di ritorno:
+    - dict: Dizionario con la definizione JSON del pannello.
+
+    Eccezioni:
+    - Nessuna eccezione prevista.
+    """
     format_type = None if panel_type == "timeseries" else "table"
     panel = {
         "collapsed": False,
@@ -71,6 +129,18 @@ PIE_OPTIONS = {
 
 
 def generate_tema_dashboard(tema_num):
+    """
+    Scopo: Genera l'intera struttura JSON di una dashboard Grafana per uno specifico 'Tema'.
+
+    Parametri:
+    - tema_num (int): Il numero identificativo del tema (es. 1, 2, 3...).
+
+    Valore di ritorno:
+    - dict: Il JSON completo della dashboard.
+
+    Eccezioni:
+    - Nessuna eccezione prevista.
+    """
     table_name = f"Tema{tema_num}"
     tf = TIME_FILTER
 
@@ -232,7 +302,7 @@ def generate_tema_dashboard(tema_num):
     # Top Foreign Countries by Volume
     panels.append(make_panel(
         id=15, title="Top Foreign Countries (Volume Byte)", panel_type="table",
-        query=f"SELECT geo_country, count(*) as packet_count, sum(length) as total_bytes FROM {table_name} WHERE {tf} AND geo_country NOT IN ('Local', 'Local Network', 'Unknown') GROUP BY geo_country ORDER BY total_bytes DESC LIMIT 10;",
+        query=f"SELECT geo_country, count(*) as packet_count, sum(length) as total_bytes FROM {table_name} WHERE {tf} AND geo_country NOT IN ('Local', 'Local Network', 'Unknown','Italy') GROUP BY geo_country ORDER BY total_bytes DESC LIMIT 10;",
         gridPos={"h": 8, "w": 12, "x": 12, "y": 33}
     ))
 

@@ -580,8 +580,8 @@
             "type": "questdb-questdb-datasource",
             "uid": "QuestDB"
           },
-          "rawSql": "SELECT geo_country, count(*) as packet_count, sum(length) as total_bytes FROM Tema2 WHERE 1=1 AND geo_country NOT IN ('Local', 'Local Network', 'Unknown') GROUP BY geo_country ORDER BY total_bytes DESC LIMIT 10;",
-          "query": "SELECT geo_country, count(*) as packet_count, sum(length) as total_bytes FROM Tema2 WHERE 1=1 AND geo_country NOT IN ('Local', 'Local Network', 'Unknown') GROUP BY geo_country ORDER BY total_bytes DESC LIMIT 10;",
+          "rawSql": "SELECT geo_country, count(*) as packet_count, sum(length) as total_bytes FROM Tema2 WHERE 1=1 AND geo_country NOT IN ('Local', 'Local Network', 'Unknown','Italy') GROUP BY geo_country ORDER BY total_bytes DESC LIMIT 10;",
+          "query": "SELECT geo_country, count(*) as packet_count, sum(length) as total_bytes FROM Tema2 WHERE 1=1 AND geo_country NOT IN ('Local', 'Local Network', 'Unknown','Italy') GROUP BY geo_country ORDER BY total_bytes DESC LIMIT 10;",
           "refId": "A",
           "format": "table"
         }

@@ -68,6 +68,7 @@ graph TD
 | **Facade** | [`NetTelemetry/src/core/analyzer.py`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTelemetry/src/core/analyzer.py) | **`PcapAnalyzer`**: Provides a unified entry point to hide complex PyShark packet loop handling and strategy execution. |
 | **Proxy / Decorator** | [`NetTelemetry/src/enrichment/service.py`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTelemetry/src/enrichment/service.py) | **`CacheProxy`**: Wraps `IpApiEnrichment` to transparently cache IP geolocation results locally, eliminating duplicate network lookups. |
 | **Repository** | [`NetTelemetry/src/storage/questdb_repo.py`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTelemetry/src/storage/questdb_repo.py) | **`QuestDBRepository`**: Encapsulates persistence logic, batching records and transmitting them over ILP HTTP. |
+| **Service (Singleton-like)** | [`NetTelemetry/src/patterns/domain_categorizer.py`](file:///c:/Users/cimin/Desktop/ThesisApps/NetTelemetry/src/patterns/domain_categorizer.py) | **`DomainCategorizer`**: Manages a local cache for domain categories, enabling fast O(1) queries without network overhead for UT1 blacklists. |
 
 ---
 
@@ -78,7 +79,11 @@ ThesisWA/
 └── NetTelemetry/
     ├── compose.yml              # Docker Compose configuration (QuestDB + Grafana)
     ├── requirements.txt         # Python project dependencies
-    ├── main.py                  # CLI application entrypoint
+    ├── main.py                  # CLI application entrypoint (Single PCAP processing)
+    ├── extract.py               # Extracts basic metadata using tshark
+    ├── reprocess.py             # Script to reprocess cached JSON outputs
+    ├── run_all.py               # Orchestrator to process a batch of PCAP files
+    ├── _debug_data.py           # Utility to clean debug data/caches
     ├── enrichment_cache.json    # Auto-generated GeoIP lookup cache
     ├── grafana/                 # Automatic Grafana provisioning configs
     │   └── provisioning/
@@ -93,6 +98,7 @@ ThesisWA/
     │   ├── enrichment/
     │   │   └── service.py       # IpApiEnrichment & CacheProxy
     │   ├── patterns/
+    │   │   ├── domain_categorizer.py # Domain categorizer using UT1 blacklists
     │   │   ├── observer.py      # Observable & PacketObserver abstractions
     │   │   └── trackers.py      # StatsTracker & FlowTracker implementations
     │   └── storage/

@@ -4,13 +4,24 @@ from src.core.strategy import TLSStrategy, HTTPStrategy, DNSStrategy, PayloadStr
 
 class PcapAnalyzer(Observable):
     """
-    Facade class that handles reading PCAP files and coordinating parsing strategies.
-    Uses the Observer pattern to notify listeners (trackers) of parsed packets.
+    Facade Pattern: Centralizza e semplifica l'elaborazione dei pacchetti.
+    Observer Pattern: Notifica automaticamente i tracker quando i pacchetti vengono analizzati.
     """
     def __init__(self, pcap_file):
+        """
+        Scopo: Inizializza l'analizzatore con il file PCAP e prepara le strategie di decodifica.
+
+        Parametri:
+        - pcap_file (str): Percorso al file PCAP da analizzare.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         super().__init__()
         self.pcap_file = pcap_file
-        # Register available strategies
         self.strategies = [
             TLSStrategy(),
             HTTPStrategy(),
@@ -26,7 +37,17 @@ class PcapAnalyzer(Observable):
 
     def analyze(self):
         """
-        Starts reading the PCAP file and processing each packet.
+        Scopo: Avvia il ciclo di lettura del file PCAP, processando ogni pacchetto e segnalando l'avanzamento.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - FileNotFoundError: Se il file PCAP non viene trovato.
+        - Exception: Se occorrono errori imprevisti durante il parsing del pacchetto.
         """
         print(f"Starting analysis on {self.pcap_file}...")
         import asyncio
@@ -47,7 +68,6 @@ class PcapAnalyzer(Observable):
             for packet in capture:
                 count += 1
                 now = time.time()
-                # Report every 1000 packets or every 2 seconds
                 if count % 1000 == 0 or (now - last_report_time) >= 2.0:
                     elapsed = now - start_time
                     interval_elapsed = max(now - last_report_time, 0.001)
@@ -72,9 +92,17 @@ class PcapAnalyzer(Observable):
 
     def _process_packet(self, packet):
         """
-        Extracts basic flow info and applies strategies to get detailed data.
+        Scopo: Estrae i metadati base dal pacchetto e applica iterativamente le strategie (Strategy Pattern) per ottenere informazioni dettagliate sul protocollo. Infine, notifica gli osservatori.
+
+        Parametri:
+        - packet: Oggetto pacchetto letto da PyShark.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
         """
-        # Basic packet info
         packet_data = {
             "timestamp": packet.sniff_timestamp,
             "highest_layer": packet.highest_layer,
@@ -88,12 +116,10 @@ class PcapAnalyzer(Observable):
             "protocol": getattr(packet, 'transport_layer', None) or getattr(packet, 'highest_layer', 'Unknown')
         }
 
-        # Ethernet layer (MAC addresses)
         if hasattr(packet, 'eth'):
             packet_data["mac_src"] = packet.eth.src
             packet_data["mac_dst"] = packet.eth.dst
 
-        # IP layer
         if hasattr(packet, 'ip'):
             packet_data["src_ip"] = packet.ip.src
             packet_data["dst_ip"] = packet.ip.dst
@@ -101,7 +127,6 @@ class PcapAnalyzer(Observable):
             packet_data["src_ip"] = packet.ipv6.src
             packet_data["dst_ip"] = packet.ipv6.dst
 
-        # Transport layer
         if hasattr(packet, 'tcp'):
             packet_data["src_port"] = int(packet.tcp.srcport)
             packet_data["dst_port"] = int(packet.tcp.dstport)
@@ -109,12 +134,9 @@ class PcapAnalyzer(Observable):
             packet_data["src_port"] = int(packet.udp.srcport)
             packet_data["dst_port"] = int(packet.udp.dstport)
 
-        # Apply Strategies to extract additional metadata (SNI, Host, Payload, etc.)
         for strategy in self.strategies:
             if strategy.can_handle(packet):
                 extra_data = strategy.extract_data(packet)
-                # Merge dictionaries
                 packet_data.update(extra_data)
 
-        # Notify Observers (Trackers)
         self.notify(packet_data)

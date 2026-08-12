@@ -2,7 +2,6 @@ import argparse
 import sys
 import os
 
-# Ensure src module can be found
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src.core import PcapAnalyzer
@@ -11,6 +10,18 @@ from src.enrichment import IpApiEnrichment, CacheProxy
 from src.storage import QuestDBRepository
 
 def main():
+    """
+    Scopo: Punto di ingresso principale dell'applicazione NetTelemetry. Avvia l'analisi del traffico di rete da un file PCAP.
+
+    Parametri:
+    - Nessuno (i parametri vengono presi da riga di comando).
+
+    Valore di ritorno:
+    - Nessuno
+
+    Eccezioni:
+    - SystemExit: Se il file PCAP non esiste o il database QuestDB non è raggiungibile.
+    """
     parser = argparse.ArgumentParser(description="NetTelemetry - PCAP Analytics & Storage Engine")
     parser.add_argument("-pcap", required=True, help="Path to the PCAP file")
     parser.add_argument("--table", default="network_traffic", help="QuestDB table name")
@@ -23,13 +34,11 @@ def main():
         print(f"Error: PCAP file not found: {args.pcap}")
         sys.exit(1)
         
-    # 1. Setup Enrichment (Proxy Pattern)
     enrich_service = None
     if not args.no_enrich:
         print("Initializing IP-API Enrichment with Cache...")
         enrich_service = CacheProxy(IpApiEnrichment())
 
-    # 2. Setup Storage (Repository Pattern)
     db_repo = None
     if not args.no_db:
         print(f"Initializing QuestDB connection (Table: {args.table})...")
@@ -41,18 +50,14 @@ def main():
             print("To run the analysis without saving to the database, use the --no-db flag.")
             sys.exit(1)
 
-    # 3. Setup Trackers (Observer Pattern)
     stats_tracker = StatsTracker()
     flow_tracker = FlowTracker(enrichment_service=enrich_service, db_repo=db_repo)
 
-    # 4. Setup Analyzer (Facade Pattern)
     analyzer = PcapAnalyzer(args.pcap)
     
-    # Wire Observers
     analyzer.attach(stats_tracker)
     analyzer.attach(flow_tracker)
 
-    # 5. Run analysis
     try:
         analyzer.analyze()
     except KeyboardInterrupt:
@@ -64,7 +69,6 @@ def main():
         if enrich_service and hasattr(enrich_service, 'flush'):
             enrich_service.flush()
 
-        # Print results
         stats_tracker.print_stats()
         flow_tracker.print_flows(limit=20)
         print("Done.")

@@ -1,3 +1,6 @@
+"""
+Scopo: Script per scaricare un PCAP di esempio (traffico HTTP) per effettuare i test del sistema.
+"""
 import urllib.request
 import os
 

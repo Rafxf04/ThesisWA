@@ -7,6 +7,18 @@ from src.config import ConfigManager
 class EnrichmentService(ABC):
     @abstractmethod
     def lookup(self, ip_address: str) -> dict:
+        """
+        Scopo: Interfaccia per il recupero delle informazioni di geolocalizzazione o metadata di un IP.
+
+        Parametri:
+        - ip_address (str): L'indirizzo IP da ricercare.
+
+        Valore di ritorno:
+        - dict: Un dizionario contenente le informazioni (es. country, city, org).
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         pass
 
 class IpApiEnrichment(EnrichmentService):
@@ -14,10 +26,33 @@ class IpApiEnrichment(EnrichmentService):
     Concrete implementation of EnrichmentService using ip-api.com.
     """
     def __init__(self):
+        """
+        Scopo: Inizializza il servizio di arricchimento con l'URL configurato per ip-api.com.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         self.base_url = ConfigManager().get("ip_api_url", "http://ip-api.com/json/")
 
     def lookup(self, ip_address: str) -> dict:
-        # Avoid private and local IPs using ipaddress module
+        """
+        Scopo: Interroga le API di ip-api per ottenere la country, la city e l'organization associate all'IP.
+
+        Parametri:
+        - ip_address (str): L'indirizzo IP.
+
+        Valore di ritorno:
+        - dict: Dizionario con le informazioni trovate, o un dizionario vuoto se fallisce.
+
+        Eccezioni:
+        - Nessuna eccezione propagata (eventuali errori HTTP vengono soppressi).
+        """
         try:
             import ipaddress
             ip_obj = ipaddress.ip_address(ip_address)
@@ -46,12 +81,36 @@ class CacheProxy(EnrichmentService):
     Proxy/Decorator pattern to cache API lookups and reduce network calls.
     """
     def __init__(self, service: EnrichmentService):
+        """
+        Scopo: Inizializza il proxy caricando la cache dal disco e salvando il riferimento al servizio sottostante.
+
+        Parametri:
+        - service (EnrichmentService): Il servizio reale da wrappare.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         self.service = service
         self.cache_file = ConfigManager().get("cache_file", "enrichment_cache.json")
         self.cache = self._load_cache()
         self.dirty_count = 0
 
     def _load_cache(self) -> dict:
+        """
+        Scopo: Carica la cache degli IP dal file JSON se esistente.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - dict: Il dizionario cache caricato o uno vuoto.
+
+        Eccezioni:
+        - Nessuna eccezione propagata.
+        """
         if os.path.exists(self.cache_file):
             try:
                 with open(self.cache_file, "r") as f:
@@ -61,6 +120,18 @@ class CacheProxy(EnrichmentService):
         return {}
 
     def _save_cache(self):
+        """
+        Scopo: Salva la cache corrente su disco per persisterla tra le esecuzioni.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione propagata.
+        """
         try:
             with open(self.cache_file, "w") as f:
                 json.dump(self.cache, f)
@@ -69,21 +140,42 @@ class CacheProxy(EnrichmentService):
             pass
 
     def lookup(self, ip_address: str) -> dict:
+        """
+        Scopo: Recupera i dati dell'IP dalla cache; se non presenti, interroga il servizio reale e memorizza il risultato.
+
+        Parametri:
+        - ip_address (str): L'IP da ricercare.
+
+        Valore di ritorno:
+        - dict: Le informazioni recuperate (dalla cache o dall'API).
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         if ip_address in self.cache:
             return self.cache[ip_address]
 
-        # Call actual service if not in cache
         result = self.service.lookup(ip_address)
         if result:
             self.cache[ip_address] = result
             self.dirty_count += 1
-            # Save incrementally
             if self.dirty_count >= 50:
                 self._save_cache()
             
         return result
         
     def flush(self):
-        """Forces the cache to be saved to disk."""
+        """
+        Scopo: Forza il salvataggio su disco della cache se ci sono state modifiche (chiamato alla fine dell'elaborazione).
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         if self.dirty_count > 0:
             self._save_cache()

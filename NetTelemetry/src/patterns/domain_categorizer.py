@@ -4,14 +4,24 @@ import time
 
 class DomainCategorizer:
     """
-    Downloads and caches open-source domain categorization lists (UT1 blacklists).
-    Provides O(1) lookup for categorizing domains extracted from PCAPs.
+    Singleton-like (o service): Gestisce una cache locale per le categorie dei domini,
+    permettendo query veloci senza continue richieste di rete.
     """
     def __init__(self, cache_dir=".domain_cache"):
+        """
+        Scopo: Inizializza il categorizzatore, preparando le cartelle per la cache e le liste di categorie.
+
+        Parametri:
+        - cache_dir (str): Il percorso della cartella cache.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         self.cache_dir = cache_dir
         self.base_url = "https://raw.githubusercontent.com/olbat/ut1-blacklists/master/blacklists/{}/domains"
-        
-        # Le categorie che vogliamo tracciare come Netify
         self.categories_to_fetch = {
             "social_networks": "Social Media",
             "games": "Gaming",
@@ -31,11 +41,21 @@ class DomainCategorizer:
         self._load_domains()
         
     def _load_domains(self):
+        """
+        Scopo: Scarica (se necessario) e carica in memoria (in un dizionario) le blacklist dei domini per le categorie selezionate.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione propagata.
+        """
         print("[*] Inizializzazione Domain Categorizer (UT1 Open Source)...")
         for cat_id, cat_name in self.categories_to_fetch.items():
             cache_file = os.path.join(self.cache_dir, f"{cat_id}.txt")
-            
-            # Se il file non esiste o è vecchio (es. > 7 giorni), lo scarica
             if not os.path.exists(cache_file) or (time.time() - os.path.getmtime(cache_file)) > 604800:
                 print(f"    - Scaricamento database '{cat_name}'...")
                 try:
@@ -65,10 +85,21 @@ class DomainCategorizer:
         print(f"[*] Caricati {len(self.domain_map)} domini unici nel motore a regole.")
         
     def get_category(self, domain):
+        """
+        Scopo: Cerca un dominio (ed i suoi sottodomini) nella cache in memoria per determinarne la categoria.
+
+        Parametri:
+        - domain (str): Il nome a dominio da analizzare.
+
+        Valore di ritorno:
+        - str: Il nome della categoria se trovata, altrimenti None.
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         if not domain:
             return None
         domain = domain.lower()
-        # Controllo esatto
         if domain in self.domain_map:
             return self.domain_map[domain]
             

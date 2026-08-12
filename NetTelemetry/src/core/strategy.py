@@ -3,17 +3,37 @@ import pyshark
 
 class ProtocolStrategy(ABC):
     """
-    Strategy interface for parsing specific layers of a packet.
+    Strategy Pattern: Interfaccia per il parsing di specifici livelli di un pacchetto di rete.
     """
     @abstractmethod
     def can_handle(self, packet) -> bool:
+        """
+        Scopo: Determina se questa strategia può gestire il pacchetto fornito.
+
+        Parametri:
+        - packet: Il pacchetto da analizzare.
+
+        Valore di ritorno:
+        - bool: True se la strategia è applicabile, False altrimenti.
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         pass
         
     @abstractmethod
     def extract_data(self, packet) -> dict:
         """
-        Extracts relevant information from the packet layer.
-        Returns a dictionary with extracted features.
+        Scopo: Estrae le informazioni rilevanti dal pacchetto specifico per questo protocollo.
+
+        Parametri:
+        - packet: Il pacchetto da cui estrarre i dati.
+
+        Valore di ritorno:
+        - dict: Dizionario con le feature estratte.
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
         """
         pass
 

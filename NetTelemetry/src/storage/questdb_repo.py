@@ -4,9 +4,23 @@ import time
 
 class QuestDBRepository:
     """
-    Repository pattern to handle data insertion to QuestDB via InfluxDB Line Protocol.
+    Repository Pattern: Isola la logica di accesso e scrittura sul database QuestDB
+    (tramite InfluxDB Line Protocol) dal resto dell'applicazione.
     """
     def __init__(self, table_name: str = "network_traffic", batch_size: int = 500):
+        """
+        Scopo: Inizializza il repository con le configurazioni di base.
+
+        Parametri:
+        - table_name (str): Il nome della tabella di destinazione.
+        - batch_size (int): Numero di record da accumulare prima del flush.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         self.table_name = table_name
         self.host = ConfigManager().get("questdb_host", "127.0.0.1")
         self.port = ConfigManager().get("questdb_http_port", 9000)
@@ -17,6 +31,18 @@ class QuestDBRepository:
         self.last_reconnect_attempt = 0
 
     def connect(self) -> bool:
+        """
+        Scopo: Stabilisce o verifica la connessione verso QuestDB via ILP HTTP.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - bool: True se connesso con successo, False altrimenti.
+
+        Eccezioni:
+        - Le eccezioni di rete vengono intercettate e gestite stampando un log.
+        """
         if self.connected and self.sender is not None:
             return True
         self.last_reconnect_attempt = time.time()
@@ -32,6 +58,19 @@ class QuestDBRepository:
             return False
 
     def insert_packet(self, flow_data: dict):
+        """
+        Scopo: Inserisce un nuovo record nel database bufferizzandolo in batch. 
+        Garantisce la precisione a nanosecondi per i timestamp temporali.
+
+        Parametri:
+        - flow_data (dict): I dati del pacchetto da registrare.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Le eccezioni di inserimento (es. IngressError) vengono catturate e loggate.
+        """
         if not self.connected or self.sender is None:
             now = time.time()
             if now - self.last_reconnect_attempt > 5.0:
@@ -40,7 +79,6 @@ class QuestDBRepository:
                 return
             
         try:
-            # Timestamp extraction: preserve full nanosecond precision without float conversion
             pkt_ts = flow_data.get('timestamp')
             if pkt_ts is not None:
                 if isinstance(pkt_ts, str):
@@ -53,7 +91,6 @@ class QuestDBRepository:
             else:
                 at_ns = time.time_ns()
 
-            # Construct row
             self.sender.row(
                 self.table_name,
                 symbols={
@@ -96,6 +133,18 @@ class QuestDBRepository:
             print(f"Error inserting packet to QuestDB: {type(e)} - {e}")
 
     def flush(self):
+        """
+        Scopo: Svuota il buffer dei record in attesa, inviandoli tutti al database in una singola richiesta.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione propagata.
+        """
         if self.sender is not None and self.connected:
             try:
                 self.sender.flush()
@@ -104,6 +153,18 @@ class QuestDBRepository:
                 print(f"QuestDB Flush Warning: {type(e)} - {e}")
 
     def close(self):
+        """
+        Scopo: Svuota il buffer finale e chiude ordinatamente la connessione al database.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione propagata.
+        """
         if self.sender is not None and self.connected:
             try:
                 self.flush()

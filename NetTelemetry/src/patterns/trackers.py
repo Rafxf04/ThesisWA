@@ -4,14 +4,38 @@ from src.patterns.domain_categorizer import DomainCategorizer
 
 class StatsTracker(PacketObserver):
     """
-    Observer that counts calls per protocol and calculates total bytes.
+    Observer Pattern: Concrete Observer che tiene traccia delle statistiche globali (conteggi e byte).
     """
     def __init__(self):
+        """
+        Scopo: Inizializza le strutture dati per le statistiche.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         self.protocol_counts = defaultdict(int)
         self.protocol_bytes = defaultdict(int)
         self.total_packets = 0
 
     def on_packet_parsed(self, packet_data: dict):
+        """
+        Scopo: Aggiorna i contatori analizzando i dati del nuovo pacchetto ricevuto.
+
+        Parametri:
+        - packet_data (dict): Dizionario contenente i dettagli del pacchetto.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         proto = packet_data.get("protocol")
         length = packet_data.get("length", 0)
         
@@ -21,6 +45,18 @@ class StatsTracker(PacketObserver):
             self.total_packets += 1
 
     def print_stats(self):
+        """
+        Scopo: Stampa a schermo il riepilogo delle statistiche di protocollo.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         print("\n--- Protocol Statistics ---")
         print(f"Total Packets Processed: {self.total_packets}")
         for proto, count in sorted(self.protocol_counts.items(), key=lambda x: x[1], reverse=True):
@@ -32,9 +68,23 @@ from collections import deque
 
 class FlowTracker(PacketObserver):
     """
-    Observer that tracks flows, destination servers, and applies Enrichment.
+    Observer Pattern: Concrete Observer che si occupa di analizzare i flussi, arricchire i dati
+    tramite servizi esterni e salvarli (eventualmente) su database.
     """
     def __init__(self, enrichment_service=None, db_repo=None):
+        """
+        Scopo: Inizializza il tracker di flussi e riceve le dipendenze per l'arricchimento e lo storage.
+
+        Parametri:
+        - enrichment_service (EnrichmentService): Servizio per l'arricchimento IP.
+        - db_repo: Repository per il salvataggio dei pacchetti.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         self.enrichment_service = enrichment_service
         self.db_repo = db_repo
         self.flows = deque(maxlen=100)
@@ -42,7 +92,19 @@ class FlowTracker(PacketObserver):
         self.ip_app_cache = {}
 
     def on_packet_parsed(self, packet_data: dict):
-        # We only care about packets with IPs
+        """
+        Scopo: Processa il pacchetto estraendo informazioni di alto livello (servizi, applicazioni),
+        lo arricchisce e lo invia al repository.
+
+        Parametri:
+        - packet_data (dict): Dizionario dei dati del pacchetto.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione propagata.
+        """
         if not packet_data.get("dst_ip"):
             return
 
@@ -127,6 +189,18 @@ class FlowTracker(PacketObserver):
             self.db_repo.insert_packet(packet_data)
 
     def _guess_service(self, port):
+        """
+        Scopo: Indovina il servizio associato ad una porta di rete basandosi su porte note.
+
+        Parametri:
+        - port (int): Il numero della porta.
+
+        Valore di ritorno:
+        - str: Il nome del servizio, o "Unknown".
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         port_map = {
             20: "FTP-DATA",
             21: "FTP",
@@ -176,9 +250,21 @@ class FlowTracker(PacketObserver):
 
     def _identify_application(self, port, sni, user_agent, http_host):
         """
-        DPI Engine: Returns a tuple (App_Name, Category) based on signatures.
+        Scopo: Utilizza tecniche DPI (Deep Packet Inspection) base per determinare l'applicazione
+        e la sua categoria analizzando SNI, HTTP Host, User-Agent o Porta.
+
+        Parametri:
+        - port (int): La porta del traffico.
+        - sni (str): Il Server Name Indication da TLS.
+        - user_agent (str): L'intestazione User-Agent HTTP.
+        - http_host (str): L'intestazione Host HTTP.
+
+        Valore di ritorno:
+        - tuple: (App_Name, Category).
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
         """
-        # 1. Check SNI or HTTP Host (Domain based signatures)
         domain = None
         if sni: domain = sni.lower()
         elif http_host: domain = http_host.lower()
@@ -250,6 +336,18 @@ class FlowTracker(PacketObserver):
         return "Unknown", "Unknown"
         
     def print_flows(self, limit=10):
+        """
+        Scopo: Stampa una sintesi degli ultimi flussi registrati a scopo di debug.
+
+        Parametri:
+        - limit (int): Numero massimo di flussi da stampare.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione propagata.
+        """
         print(f"\n--- Recent Flows (showing last {limit}) ---")
         for f in list(self.flows)[-limit:]:
             src_str = f'Src: {f.get("src_ip")}:{f.get("src_port")}'

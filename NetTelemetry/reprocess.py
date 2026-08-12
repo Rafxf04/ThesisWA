@@ -1,3 +1,6 @@
+"""
+Scopo: Script per eliminare tutte le tabelle nel database QuestDB e ri-eseguire l'analisi per ripopolarle.
+"""
 import urllib.request
 import urllib.parse
 import subprocess
